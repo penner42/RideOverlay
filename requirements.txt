@@ -1,0 +1,9 @@
+Kivy
+kivy.deps.sdl2
+kivy.deps.glew
+kivy.deps.gstreamer
+ffmpeg-python
+pypiwin32
+stravalib
+polyline
+geopy

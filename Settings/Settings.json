@@ -1,0 +1,20 @@
+[
+    {
+        "type": "string",
+        "title": "Strava Client ID",
+        "section": "Settings",
+        "key": "strava_client_id"
+    },
+    {
+        "type": "string",
+        "title": "Strava Oauth Secret",
+        "section": "Settings",
+        "key": "strava_oauth_secret"
+    },
+    {
+        "type": "string",
+        "title": "Google Maps API Key",
+        "section": "Settings",
+        "key": "googlemaps_api_key"
+    }
+]

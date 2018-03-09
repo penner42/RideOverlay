@@ -1,0 +1,173 @@
+#:import threading threading
+<RideOverlay>
+    BoxLayout:
+        orientation: 'horizontal'
+        size_hint_max_y: 30
+
+        Widget:
+
+        Button:
+            pos_hint: {'right': 1, 'top':1}
+            text: 'Settings'
+            size_hint_max_x: 100
+            on_release: root.open_settings()
+
+<VideoSelect>
+    pos: 0,0
+#    size_hint_y: 100
+    GridLayout:
+        cols: 2
+
+        Label:
+            id: file_drag
+            text: 'Drag video file(s) here.'
+
+        BoxLayout:
+            orientation: 'vertical'
+
+            RecycleView:
+                id: listview
+                viewclass: 'ListFileName'
+                RecycleBoxLayout:
+                    default_size: None, dp(56)
+                    default_size_hint: 1, None
+                    size_hint_y: None
+                    height: self.minimum_height
+                    orientation: 'vertical'
+
+            Button:
+                text: 'Next'
+                size_hint_max_y: 30
+                on_release: root.next()
+
+<Auth>
+##    size_hint_y: 0
+#    opacity: 0
+    pos: 0,0
+    Button:
+        text: 'Next'
+        size_hint_max_y: 30
+        on_release: root.next()
+
+    Button:
+        text: 'Prev'
+        size_hint_max_y: 30
+        on_release: root.prev()
+
+    Button:
+        text: 'Sync'
+        size_hint_max_y: 30
+        on_release: root.get_video_activity()
+
+
+<Sync>
+    BoxLayout:
+        orientation: 'horizontal'
+
+    # Link Strava Data
+        BoxLayout:
+            orientation: 'vertical'
+            Video:
+#                source: 'test.mp4'
+                size_hint_y: None
+                height: 0
+                id: video
+                state: 'pause'
+
+                on_position: root.position_change()
+                on_duration: root.duration()
+                on_loaded: root.video_loaded()
+                on_state: root.state(self.state)
+                on_eos: root.jump()
+
+            Slider:
+                opacity: 0
+                size_hint_max_y: 30
+                id: slider
+
+            GridLayout:
+                size_hint_max_y: 30
+                cols: 5
+
+                Label:
+                    id: speed
+                    text: "Speed: "
+
+                Label:
+                    id: cadence
+                    text: "Cadence: "
+
+                Label:
+                    id: heartrate
+                    text: "HR: "
+
+        BoxLayout:
+            orientation: 'vertical'
+            Image:
+                id: mapimage
+
+            GridLayout:
+                cols: 3
+                size_hint_max_y: 30
+                Button:
+                    id: minusmap
+                    text: "Minus"
+                    on_release: root.minusmap()
+                Button:
+                    id: plusmap
+                    text: "Plus"
+                    on_release: root.plusmap()
+
+        BoxLayout:
+            size_hint: .1,1
+            orientation: 'vertical'
+            Button:
+                size_hint_max_y: 30
+                id: list
+                text: "List"
+                on_release: threading.Thread(target=root.list).start()
+
+            Button:
+                size_hint_max_y: 30
+                id: auth
+                text: "Auth"
+                on_release: root.auth()
+
+            Button:
+                size_hint_max_y: 30
+                id: pause
+                text: "Pause"
+                on_release: root.pause()
+
+            Button:
+                size_hint_max_y: 30
+                id: play
+                text: "Play"
+                on_release: root.play()
+
+            Button:
+                size_hint_max_y: 30
+                id: map
+                text: "Map"
+                on_release: root.update_ride_data()
+
+            Button:
+                size_hint_max_y: 30
+                id: plus
+                text: "jump"
+                on_release: root.jump()
+
+            Button:
+                size_hint_max_y: 30
+                text: "Prev"
+                on_release: root.prev()
+
+            Widget:
+
+<ProgressDialog>
+    BoxLayout:
+        orientation: 'vertical'
+
+        Label:
+            id: progresslabel
+            text: ''
