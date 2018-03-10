@@ -116,6 +116,7 @@ class MapData():
 
     def _calculate_paths(self):
         # find paths in activity - all sets of consecutive time increments
+        App.get_running_app().update_popup('calculating paths')
         gap = start = 0
         for i, c in enumerate(self._timeindex):
             if c == i + gap:
@@ -124,19 +125,10 @@ class MapData():
             self._paths.append(self._timeindex[start:i])
             start = i
             gap = c - i
-            print("{} {}".format(i,c))
         self._paths.append(self._timeindex[start:])
 
-    def containsroute(self, tile):
-        result = False
-        t = tile.center.to_str()
-        for i, c in enumerate(self._coordinates):
-            if tile.contains(c):
-                tile._indices.append(i)
-                result = True
-        return result
-
     def _get_tiles(self):
+        app = App.get_running_app()
         current_lon = self._minlon
         while current_lon < self._maxlon:
             current_lat = self._maxlat
@@ -165,15 +157,14 @@ class MapData():
 
                 paths = tile.get_paths()
                 if paths:
-                    # if self.containsroute(tile):
-                    #     tile.calculatepaths()
                     paths_str = ''.join('&path=enc:'+x for x in paths)
                     url = 'https://maps.googleapis.com/maps/api/staticmap?center={}' \
                           '&size=240x240&zoom={}{}&format=png&key={}'.format(
                            tile.center.to_str(),ZOOMLEVEL, paths_str,
-                           App.get_running_app().config.get('Settings', 'googlemaps_api_key')
+                           app.config.get('Settings', 'googlemaps_api_key')
                     )
                     try:
+                        app.update_popup("Downloading map for tile with center:\r\n     {}".format(tile.center.to_str()))
                         with urllib.request.urlopen(url) as response:
                             tile.set_image(io.BytesIO(response.read()))
                     except urllib.error.HTTPError as e:
@@ -184,36 +175,17 @@ class MapData():
                     self._tiles.append(tile)
 
                 # increment latitude by 1/3 of tile
-                print(tile.center.to_str())
                 pixel = MapData.latlng_to_pixel(tile.center)
                 current_lat = MapData.pixel_to_latlng((pixel[0], pixel[1]+floor(TILESIZE/3))).lat
 
             # increment longitude by 1/3 of tile
             pixel = MapData.latlng_to_pixel(LatLong(current_lat, current_lon))
             current_lon = MapData.pixel_to_latlng((pixel[0]+floor(TILESIZE/3), pixel[1])).lon
-            print(current_lon)
 
-        # for lon in numpy.arange(self._minlon, self._maxlon, 0.005):
-        #     for lat in numpy.arange(self._minlat, self._maxlat, 0.005):
-        #         tile = MapTile(LatLong(lat, lon))
-        #         # only save this tile if it contains points on the route
-        #         if self.containsroute(tile):
-        #             tile.calculatepaths()
-        #             url = 'https://maps.googleapis.com/maps/api/staticmap?center={}' \
-        #                   '&size=240x240&zoom={}&path=enc:{}&format=png&key={}'.format(
-        #                    tile.center.to_str(),ZOOMLEVEL, tile._polylines,
-        #                    App.get_running_app().config.get('Settings', 'googlemaps_api_key')
-        #             )
-        #             try:
-        #                 with urllib.request.urlopen(url) as response:
-        #                     tile.set_image(io.BytesIO(response.read()))
-        #             except urllib.error.HTTPError:
-        #                 pass
-        #             self._tiles.append(tile)
         print(len(self._tiles))
         pass
 
-    def getTilePoint(self, latlong):
+    def get_point_tile(self, latlong):
         # find tile with center point closest to position
         # could probably use a lot of optimization
         min_distance = None

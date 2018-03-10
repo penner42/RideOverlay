@@ -108,23 +108,22 @@ class Auth(BoxLayout):
                 video_start = v.creation_time
                 video_end = video_start + v.video_duration
                 if video_start <= activity_start <= video_end:
-                    print("activity {} starts in video".format(a.id))
+                    app.update_popup("activity {} starts in video".format(a.id))
                     app.activity = a
                     app.stream = client.get_activity_streams(a.id, types=['time','latlng','velocity_smooth','heartrate','cadence','temp'])
                 if video_start <= activity_end <= video_end:
-                    print("activity {} ends in video".format(a.id))
+                    app.update_popup("activity {} ends in video".format(a.id))
                 if activity_start <= video_start and video_end <= activity_end:
-                    print("video entirely within activity {}".format(a.id))
+                    app.update_popup("video entirely within activity {}".format(a.id))
                     app.activity = a
                     app.stream = client.get_activity_streams(a.id, types=['time','latlng','velocity_smooth','heartrate','cadence','temp'])
 
         if app.stream:
             app.mapdata = MapData(app.stream)
-            # app.mapdata.getTiles()
             app.stream['images'] = [None] * len(app.stream['latlng'].data)
             for i, latlng in enumerate(app.stream['latlng'].data):
                 position = LatLong(latlng)
-                tile = app.mapdata.getTilePoint(position)
+                tile = app.mapdata.get_point_tile(position)
                 if tile:
                     im = tile.draw_point(position)
                     app.stream['images'][i] = im
@@ -144,7 +143,6 @@ class Sync(BoxLayout):
         App.get_running_app().pagelayout.prev_page()
 
     def video_loaded(self):
-        print("asdf")
         self.ids.video.seek(0)
 
     def state(self, st):
